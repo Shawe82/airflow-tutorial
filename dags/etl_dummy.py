@@ -1,0 +1,48 @@
+from datetime import datetime, timedelta
+
+from airflow import DAG
+from airflow.models import Variable
+from airflow.operators.docker_operator import DockerOperator
+
+# Airflow connection ids
+DOCKER_REGISTRY = "SHAWE_REGISTRY"
+REGISTRY = ""
+
+# Airflow variables
+HOST_DIR = "share-dir"
+TAG = "context-tag"
+
+# Constants
+OUTPUT_DIR = "/usr/local/shawe/share"
+
+
+# Here the actual dag is defined
+default_args = {
+    "start_date": datetime(2019, 3, 18),
+    "owner": "shawe",
+    "depends_on_past": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+
+with DAG("elt-dummy-tutorial", default_args=default_args, schedule_interval="@daily") as dag:
+    def make_etl_operator(task_id, operation):
+        volumes = [f"{Variable.get(HOST_DIR)}:{OUTPUT_DIR}"]
+        image_tag = Variable.get(TAG, default_var="latest")
+        cmd = f"'etl --out-dir {OUTPUT_DIR} {operation}'"
+        return DockerOperator(
+            api_version="auto",
+            docker_conn_id=DOCKER_REGISTRY,
+            environment={"PYTHONUNBUFFERED": 1},
+            task_id=task_id,
+            image=f"{REGISTRY}etl-dummy:{image_tag}",
+            command=cmd,
+            volumes=volumes,
+            auto_remove=True,
+        )
+
+    extract = make_etl_operator("extract-step-dummy-etl", "extract")
+    transform = make_etl_operator("transform-step-dummy-etl", "transform")
+    load = make_etl_operator("load-step-dummy-etl", "load")
+
+extract >> transform >> load
