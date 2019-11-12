@@ -1,0 +1,28 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "etl-dummy"
+version = "0.1.0"
+description = ""
+authors = ["Simon Hawe <simon.hawe@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+click = "^7.0"
+click_log = "^0.3.2"
+funcy = "^1.13"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.5.0"
+black = "18.9b0"
+
+[tool.poetry.scripts]
+etl = 'etl_dummy.cli:cli'
+
+[tool.black]
+line-length = 88
+py36 = true
+include = '\.pyi?$'
+exclude = '\.git/|\.mypy_cache/|\.tox/|\.venv/|_build/|buck-out/|build/|dist/'
