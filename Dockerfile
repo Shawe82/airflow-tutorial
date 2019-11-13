@@ -8,5 +8,4 @@ ARG AIRFLOW_HOME=/usr/local/airflow
 RUN pip install docker
 ENV SHARE_DIR /usr/local/share
 COPY ./config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
-#COPY ./dags ${AIRFLOW_HOME}/dags
 

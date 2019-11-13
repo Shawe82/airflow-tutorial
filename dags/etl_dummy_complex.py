@@ -28,7 +28,7 @@ default_args = {
 
 with DAG("elt-dummy-tutorial", default_args=default_args, schedule_interval="@daily") as dag:
     # Volumes mounted to the docker container
-    volumes = [f"/usr/local/share:/usr/local/shawe/share"]
+    volumes = [f"{Variable.get(HOST_DIR)}:{OUTPUT_DIR}"]
     # Tag determined from variable hosted in airflow. if not set, it defaults to latest
     image_tag = Variable.get(TAG, default_var="latest")
     def make_etl_operator(task_id : str, operation : str):
@@ -38,7 +38,7 @@ with DAG("elt-dummy-tutorial", default_args=default_args, schedule_interval="@da
             docker_conn_id=DOCKER_REGISTRY,
             environment={"PYTHONUNBUFFERED": 1},
             task_id=task_id,
-            image=f"etl-dummy:latest",
+            image=f"{REGISTRY}etl-dummy:{image_tag}",
             command=cmd,
             volumes=volumes,
             auto_remove=True,
