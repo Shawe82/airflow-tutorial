@@ -26,7 +26,7 @@ default_args = {
     "retry_delay": timedelta(minutes=5),
 }
 
-with DAG("elt-dummy-tutorial", default_args=default_args, schedule_interval="@daily") as dag:
+with DAG("elt-dummy-tutorial-complex", default_args=default_args, schedule_interval="@daily") as dag:
     # Volumes mounted to the docker container
     volumes = [f"{Variable.get(HOST_DIR)}:{OUTPUT_DIR}"]
     # Tag determined from variable hosted in airflow. if not set, it defaults to latest
