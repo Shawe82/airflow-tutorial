@@ -48,4 +48,4 @@ with DAG("elt-dummy-tutorial-complex", default_args=default_args, schedule_inter
     transform = make_etl_operator("transform-step-dummy-etl", "transform")
     load = make_etl_operator("load-step-dummy-etl", "load")
 
-extract >> transform >> load
+    extract >> transform >> load

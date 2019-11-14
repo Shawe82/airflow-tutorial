@@ -11,15 +11,23 @@ services:
         image: aflow-docker
         build: .
         restart: always
+        privileged: true
+        environment:
+            - AIRFLOW_HOME=/usr/local/airflow
+            - EXECUTOR=Local
         depends_on:
             - postgres
+
         volumes:
             - ./dags:/usr/local/airflow/dags
             - /var/run/docker.sock:/var/run/docker.sock
-        privileged: true
+            - /usr/bin/docker:/bin/docker:ro
+
         ports:
             - "8080:8080"
+
         command: webserver
+
         healthcheck:
             test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
             interval: 30s
