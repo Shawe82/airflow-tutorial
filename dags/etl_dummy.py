@@ -29,8 +29,8 @@ with DAG("elt-dummy-tutorial", default_args=default_args, schedule_interval="@ho
         )
 
 
-    extract = make_etl_operator("extract-step-dummy-etl", "extract")
-    transform = make_etl_operator("transform-step-dummy-etl", "transform")
-    load = make_etl_operator("load-step-dummy-etl", "load")
+    extract = make_etl_operator("extract-step-dummy-etl", "extract --url http://etl.dummy.com/api/data")
+    transform = make_etl_operator("transform-step-dummy-etl", "transform --lower")
+    load = make_etl_operator("load-step-dummy-etl", "load --db 9000://fake-db")
 
 extract >> transform >> load
