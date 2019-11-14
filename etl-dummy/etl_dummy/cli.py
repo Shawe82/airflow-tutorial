@@ -1,6 +1,8 @@
 import logging
+import string
+import random
 
-from funcy import walk_values
+from funcy import walk_values, isa
 import click
 import click_log
 
@@ -10,6 +12,12 @@ click_log.basic_config()
 log = logging.getLogger(__name__)
 
 pass_repo = click.make_pass_decorator(Repo)
+
+
+def random_string(length):
+    return "".join(
+        random.choices(string.ascii_uppercase + string.ascii_lowercase, k=length)
+    )
 
 
 @click.group()
@@ -22,23 +30,42 @@ def cli(ctx, out_dir):
 
 @cli.command("extract")
 @pass_repo
-def extract(repo: Repo):
-    log.info("Execute extract step")
-    repo.storage.dummies = {"name": "HANS", "surname": "MAULWURF"}
+@click.option("--url", required=True, help="Url to extract the data from")
+def extract(repo: Repo, url):
+    log.info(f"Execute extract step from {url}")
+    repo.storage.dummies = {
+        random_string(8): random_string(12) for _ in range(random.randint(3, 10))
+    }
     log.info("Done extracting")
 
 
 @cli.command("transform")
 @pass_repo
-def transform(repo: Repo):
+@click.option(
+    "--lower",
+    "action",
+    default=True,
+    help="Transform string to lower case",
+    flag_value="lower",
+)
+@click.option(
+    "--upper", "action", help="Transform string to upper case", flag_value="upper"
+)
+def transform(repo: Repo, action):
+    def trans(x: str):
+        if not isa(str)(x):
+            return x
+        return x.lower() if action == "lower" else x.upper()
+
     log.info("Execute transform step")
-    repo.storage.dummies = walk_values(lambda x: x.lower(), repo.storage.dummies)
+    repo.storage.dummies = walk_values(trans, repo.storage.dummies)
     log.info("Done transforming")
 
 
 @cli.command("load")
 @pass_repo
-def load(repo: Repo):
-    log.info("Execute load step")
+@click.option("--db", required=True, help="database to upload the result")
+def load(repo: Repo, db):
+    log.info(f"Execute load step to db {db}")
     print(repo.storage.dummies)
     log.info("Done loading")
