@@ -1,41 +1,18 @@
 import json
-import os
-import shutil
-from os.path import join
-from typing import Dict
+
+import redis
 
 
 class Storage:
-    DUMMY_FILE = "dummy_file.json"
-
-    def __init__(self, base_path: str):
-        self._base_path = join(base_path, "tmp_store_airflow")
-        os.makedirs(self._base_path, exist_ok=True)
+    def __init__(self, redis_url: str):
+        host, port = redis_url.split(":")
+        self._redis = redis.Redis(host=host, port=port, db=0)
+        self._key = "dummy-data"
 
     @property
     def dummies(self):
-        return self._read_json(self.DUMMY_FILE)
+        return json.loads(self._redis.get(self._key))
 
     @dummies.setter
     def dummies(self, value):
-        self._write_json(value, self.DUMMY_FILE)
-
-    def cleanup(self):
-        shutil.rmtree(self._base_path, ignore_errors=True)
-
-    def _write_json(self, data: Dict, path_to_file: str):
-        with open(self._path(path_to_file), "w") as f:
-            return json.dump(data, f)
-
-    def _read_json(self, path_to_file: str) -> Dict:
-        with open(self._path(path_to_file), "r") as f:
-            return json.load(f)
-
-    def _path(self, f):
-        return join(self._base_path, f)
-
-
-class Repo:
-    def __init__(self, output_dir: str):
-        self.storage = Storage(output_dir)
-
+        self._redis.set(self._key, json.dumps(value))

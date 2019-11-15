@@ -1,6 +1,16 @@
 version: '3.7'
 services:
+    redis:
+        container_name: redis
+        image: redis:alpine
+        ports:
+            - "6379:6379"
+        volumes:
+            - ../data/redis:/data
+        restart: always
+
     postgres:
+        container_name: postgres-db
         image: postgres:9.6
         environment:
             - POSTGRES_USER=airflow
@@ -8,6 +18,7 @@ services:
             - POSTGRES_DB=airflow
 
     webserver:
+        container_name: airflow
         image: aflow-docker
         build: .
         restart: always
