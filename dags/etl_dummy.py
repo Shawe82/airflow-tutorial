@@ -22,6 +22,7 @@ with DAG(
             task_id=task_id,
             image=f"etl-dummy:latest",
             auto_remove=True,
+            network_mode="airflow-tutorial_default"
         )
 
     extract = make_etl_operator(
