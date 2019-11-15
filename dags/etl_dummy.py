@@ -14,17 +14,13 @@ default_args = {
 with DAG(
     "elt-dummy-tutorial", default_args=default_args, schedule_interval="@hourly"
 ) as dag:
-    # Volumes mounted to the docker container
-    output_dir = "/usr/local/share"
-
     def make_etl_operator(task_id: str, operation: str):
-        cmd = f"'etl --out-dir {output_dir} {operation}'"
+        cmd = f"'etl --redis-url redis:6379 {operation}'"
         return DockerOperator(
             command=cmd,
             environment={"PYTHONUNBUFFERED": 1},
             task_id=task_id,
             image=f"etl-dummy:latest",
-            volumes=[f"/usr/local/share:{output_dir}"],
             auto_remove=True,
         )
 
